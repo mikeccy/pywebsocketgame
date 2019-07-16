@@ -1,6 +1,7 @@
 from setuptools import setup
 
 setup(
+    install_requires=['websocket-client'],
     name='pywebsocketgame',
     version='0.0.1',
     description='Some websocket game',
