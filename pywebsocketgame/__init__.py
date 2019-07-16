@@ -3,25 +3,70 @@ import json
 
 
 def join_game(name):
+    """Joins game for a player
+
+    Parameters:
+        name (str): The name of the player
+
+    Returns:
+        object: WebSocket object of the game connection
+    """
     connection = create_connection("wss://p0d0cvu6q0.execute-api.us-east-1.amazonaws.com/dev/")
-    connection.send('{"action": "sendMessage", "name": "{}", "channelId": "General", "content": "join_game"}'.format(name))
+    command = {"action": "sendMessage", "name": name, "channelId": "General", "content": "join_game"}
+    connection.send(json.dumps(command))
     return connection
 
 
 def forward(connection):
-    connection.send('{"action": "sendMessage", "name": "name", "channelId": "General", "content": "forward"}')
+    """Moves a connected player forward
+
+    Parameters:
+        connection (object): The player connection returned from join_game
+
+    Returns:
+        None
+    """
+    command = {"action": "sendMessage", "name": "name", "channelId": "General", "content": "forward"}
+    connection.send(json.dumps(command))
 
 
 def stop(connection):
-    connection.send('{"action": "sendMessage", "name": "name", "channelId": "General", "content": "stop"}')
+    """Stops a connected player
+
+    Parameters:
+        connection (object): The player connection returned from join_game
+
+    Returns:
+        None
+    """
+    command = {"action": "sendMessage", "name": "name", "channelId": "General", "content": "stop"}
+    connection.send(json.dumps(command))
 
 
 def find_giphymon(connection):
-    connection.send('{"action": "sendMessage", "name": "name", "channelId": "General", "content": "find_giphymon"}')
+    """Find closest giphymon given player, set player heading to that target
+
+    Parameters:
+        connection (object): The player connection returned from join_game
+
+    Returns:
+        None
+    """
+    command = {"action": "sendMessage", "name": "name", "channelId": "General", "content": "find_giphymon"}
+    connection.send(json.dumps(command))
 
 
 def close_to_giphymon(connection):
-    connection.send('{"action": "sendMessage", "name": "name", "channelId": "General", "content": "close_to_giphymon"}')
+    """Check whether player is close to a giphymon
+
+    Parameters:
+        connection (object): The player connection returned from join_game
+
+    Returns:
+        Boolean, True if there is a giphymon ready to be captured close by, False otherwise
+    """
+    command = {"action": "sendMessage", "name": "name", "channelId": "General", "content": "close_to_giphymon"}
+    connection.send(json.dumps(command))
     while True:
         result = connection.recv()
         result = json.loads(result)
@@ -30,4 +75,18 @@ def close_to_giphymon(connection):
 
 
 def capture_giphymon(connection):
-    connection.send('{"action": "sendMessage", "name": "name", "channelId": "General", "content": "capture_giphymon"}')
+    """Try to capture a close by giphymon, please note giphymon might have a chance to escape capture.
+
+    Parameters:
+        connection (object): The player connection returned from join_game
+
+    Returns:
+        Boolean, True if there is a giphymon is captured, False otherwise
+    """
+    command = {"action": "sendMessage", "name": "name", "channelId": "General", "content": "capture_giphymon"}
+    connection.send(json.dumps(command))
+    while True:
+        result = connection.recv()
+        result = json.loads(result)
+        if 'filterId' in result and result['name'] == 'capturegiphymon':
+            return result['content']
